@@ -1,19 +1,18 @@
-var koa = require('koa');
-var session = require('koa-generic-session');
-var redisStore = require('../');
-
-var app = koa();
-
+const Koa = require('koa');
+const session = require('koa-session');
+const redisStore = require('../');
+const app = new Koa();
+const store = new redisStore()
 app.keys = ['keys', 'keykeys'];
 if (process.argv[2] !== 'nosession') {
   app.use(session({
-    store: redisStore()
-  }));
+    store
+  }, app));
 }
 
-app.use(function *() {
+app.use(() => {
   this.session = this.session || {};
-  this.session.name = 'koa-redis';
+  this.session.name = 'koa2-redis';
   this.body = this.session.name;
 });
 

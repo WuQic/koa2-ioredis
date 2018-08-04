@@ -13,8 +13,9 @@
  * Module dependencies.
  */
 
-var should = require('should');
-var Redis = require('ioredis');
+const should = require('should');
+const Redis = require('ioredis');
+const RedisStroe = require('../')
 
 function event(object, name) {              // Convert events to promises
   return new Promise(function(resolve) {
@@ -23,86 +24,85 @@ function event(object, name) {              // Convert events to promises
 }
 
 describe('test/koa-redis.test.js', function () {
-  it('should connect and ready with external client and quit ok', function* () {
-    var store = require('../')({client: new Redis()});
-    yield event(store, 'connect');
+  it('should connect and ready with external client and quit ok', async () => {
+    var store = new RedisStroe({client: new Redis()});
+    await event(store, 'connect');
     store.status.should.eql('connect');
-    yield event(store, 'ready');
+    await event(store, 'ready');
     store.status.should.eql('ready');
-    yield store.quit();
-    yield event(store, 'end');
+    await store.quit();
+    await event(store, 'end');
     store.status.should.eql('end');
   });
 
-  it('should connect and ready with duplicated external client and disconnect ok', function* () {
-    var store = require('../')({
+  it('should connect and ready with duplicated external client and disconnect ok', async () => {
+    var store = new RedisStroe({
       client: new Redis(),
       duplicate: true
     });
-    yield event(store, 'connect');
+    await event(store, 'connect');
     store.status.should.eql('connect');
-    yield event(store, 'ready');
+    await event(store, 'ready');
     store.status.should.eql('ready');
-    yield store.end()
-    yield event(store, 'disconnect');
+    await store.end()
+    await event(store, 'disconnect');
     store.status.should.eql('end');
   });
 
-  it('should set and delete with db ok', function* () {
-    var store = require('../')({db: 2});
+  it('should set and delete with db ok', async () => {
+    var store = new RedisStroe({db: 2});
     var client = new Redis();
-    client.select(2);
-    yield store.set('key:db1', {a: 2});
-    (yield store.get('key:db1')).should.eql({a: 2});
-    JSON.parse(yield client.get('key:db1')).should.eql({a: 2});
-    yield store.destroy('key:db1');
-    should.not.exist(yield store.get('key:db1'));
-    should.not.exist(yield client.get('key:db1'));
-    yield store.quit();
+    await client.select(2);
+    await store.set('key:db1', {a: 2});
+    (await store.get('key:db1')).should.eql({a: 2});
+    JSON.parse(await client.get('key:db1')).should.eql({a: 2});
+    await store.destroy('key:db1');
+    should.not.exist(await store.get('key:db1'));
+    should.not.exist(await client.get('key:db1'));
+    await store.quit();
   });
 
-  it('should set with ttl ok', function* () {
-    var store = require('../')();
-    yield store.set('key:ttl', {a: 1}, 86400000);
-    (yield store.get('key:ttl')).should.eql({a: 1});
-    (yield store.client.ttl('key:ttl')).should.equal(86400);
-    yield store.quit();
+  it('should set with ttl ok', async () => {
+    var store = new RedisStroe();
+    await store.set('key:ttl', {a: 1}, 86400000);
+    (await store.get('key:ttl')).should.eql({a: 1}); (await store.client.ttl('key:ttl')).should.equal(86400);
+    await store.quit();
   });
 
-  it('should not throw error with bad JSON', function* () {
-    var store = require('../')();
-    yield store.client.set('key:badKey', '{I will cause an error!}');
-    should.not.exist(yield store.get('key:badKey'));
-    yield store.quit();
+  it('should not throw error with bad JSON', async () => {
+    var store = new RedisStroe();
+    await store.client.set('key:badKey', '{I will cause an error!}');
+    should.not.exist(await store.get('key:badKey'));
+    await store.quit();
   });
 
-  it('should set without ttl ok', function* () {
-    var store = require('../')();
-    yield store.set('key:nottl', {a: 1});
-    (yield store.get('key:nottl')).should.eql({a: 1});
-    (yield store.client.ttl('key:nottl')).should.equal(-1);
-    yield store.quit();
+  it('should set without ttl ok', async () => {
+    var store = new RedisStroe();
+    await store.set('key:nottl', {a: 1});
+    (await store.get('key:nottl')).should.eql({a: 1});
+    (await store.client.ttl('key:nottl')).should.equal(-1);
+    await store.quit();
   });
 
-  it('should destroy ok', function* () {
-    var store = require('../')();
-    yield store.destroy('key:nottl');
-    yield store.destroy('key:ttl');
-    yield store.destroy('key:badKey');
-    should.not.exist(yield store.get('key:nottl'));
-    should.not.exist(yield store.get('key:ttl'));
-    should.not.exist(yield store.get('key:badKey'));
-    yield store.quit();
+  it('should destroy ok', async () => {
+    var store = new RedisStroe();
+    await store.destroy('key:nottl');
+    await store.destroy('key:ttl');
+    await store.destroy('key:badKey');
+    should.not.exist(await store.get('key:nottl'));
+    should.not.exist(await store.get('key:ttl'));
+    should.not.exist(await store.get('key:badKey'));
+    await store.quit();
   });
 
-  it('should expire after 1s', function* () {
+  it('should expire after 1s', async () => {
     this.timeout(2000);
     function sleep(t) { return new Promise(function(resolve) { setTimeout(resolve, t); }); }
 
-    var store = require('../')();
-    yield store.set('key:ttl2', {a: 1, b: 2}, 1000);
-    yield sleep(1200);                                 // Some odd delay introduced by co-mocha
-    should.not.exist(yield store.get('key:ttl2'));
-    yield store.quit();
+    var store = new RedisStroe();
+    await store.set('key:ttl2', {a: 1, b: 2}, 1000);
+    await sleep(1200);                                 // Some odd delay introduced by co-mocha
+    should.not.exist(await store.get('key:ttl2'));
+    await store.quit();
   });
 });

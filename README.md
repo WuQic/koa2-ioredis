@@ -1,4 +1,4 @@
-koa-session-ioredis
+koa2-session-ioredis
 ===================
 
 [![NPM version][npm-image]][npm-url]
@@ -10,8 +10,8 @@ koa-session-ioredis
 [![npm download][download-image]][download-url]
 [![license][license-image]][license-url]
 
-[npm-image]: https://img.shields.io/npm/v/koa-session-ioredis.svg?style=flat-square
-[npm-url]: https://npmjs.org/package/koa-session-ioredis
+[npm-image]: https://img.shields.io/npm/v/koa2-session-ioredis.svg?style=flat-square
+[npm-url]: https://npmjs.org/package/koa2-session-ioredis
 [travis-image]: https://img.shields.io/travis/ortoo/koa-ioredis.svg?style=flat-square
 [travis-url]: https://travis-ci.org/ortoo/koa-ioredis
 [coveralls-image]: https://img.shields.io/coveralls/ortoo/koa-ioredis.svg?style=flat-square
@@ -22,46 +22,57 @@ koa-session-ioredis
 [david-dev-url]: https://david-dm.org/ortoo/koa-ioredis#info=devDependencies
 [david-opt-image]: https://img.shields.io/david/optional/ortoo/koa-ioredis.svg?style=flat-square&label=optDeps
 [david-opt-url]: https://david-dm.org/ortoo/koa-ioredis#info=devDependencies
-[node-image]: https://img.shields.io/node/v/koa-session-ioredis.svg?style=flat-square
+[node-image]: https://img.shields.io/node/v/koa2-session-ioredis.svg?style=flat-square
 [node-url]: http://nodejs.org/download/
-[download-image]: https://img.shields.io/npm/dm/koa-session-ioredis.svg?style=flat-square
-[download-url]: https://npmjs.org/package/koa-session-ioredis
+[download-image]: https://img.shields.io/npm/dm/koa2-session-ioredis.svg?style=flat-square
+[download-url]: https://npmjs.org/package/koa2-session-ioredis
 [gittip-image]: https://img.shields.io/gittip/dead-horse.svg?style=flat-square
 [gittip-url]: https://www.gittip.com/dead-horse/
-[license-image]: https://img.shields.io/npm/l/koa-session-ioredis.svg?style=flat-square
+[license-image]: https://img.shields.io/npm/l/koa2-session-ioredis.svg?style=flat-square
 [license-url]: https://github.com/ortoo/koa-ioredis/blob/master/LICENSE
 
 Redis storage for koa session middleware/cache using ioredis.
 
-[![NPM](https://nodei.co/npm/koa-session-ioredis.svg?downloads=true)](https://nodei.co/npm/koa-session-ioredis/)
+[![NPM](https://nodei.co/npm/koa2-session-ioredis.svg?downloads=true)](https://nodei.co/npm/koa2-session-ioredis/)
 
 ## Installation
 
 ```
-npm i koa-session-ioredis ioredis --save
+npm i koa2-session-ioredis ioredis --save
 ```
 
 ## Usage
 
-`koa-session-ioredis` works with [koa-generic-session](https://github.com/koajs/generic-session) (a generic session middleware for koa).
+`koa2-session-ioredis` works with [koa-session](https://github.com/koajs/session) (a session middleware for koa v2).
 
 ### Example
 
 ```js
-var session = require('koa-generic-session');
-var redisStore = require('koa-session-ioredis');
-var koa = require('koa');
+const session = require('koa-session');
+const RedisStore = require('koa2-session-ioredis');
+const Koa = require('koa');
 
-var app = koa();
+const app = new Koa();
 app.keys = ['keys', 'keykeys'];
 app.use(session({
-  store: redisStore({
+  key: 'koa:sess', /** (string) cookie key (default is koa:sess) */
+  /** (number || 'session') maxAge in ms (default is 1 days) */
+  /** 'session' will result in a cookie that expires when session/browser is closed */
+  /** Warning: If a session cookie is stolen, this cookie will never expire */
+  maxAge: 86400000,
+  overwrite: true, /** (boolean) can overwrite or not (default true) */
+  httpOnly: true, /** (boolean) httpOnly or not (default true) */
+  signed: true, /** (boolean) signed or not (default true) */
+  rolling: false, /** (boolean) Force a session identifier cookie to be set on every response. The expiration is reset to the original maxAge, resetting the expiration countdown. (default is false) */
+  renew: false, /** (boolean) renew session when session is nearly expired, so we can always keep user logged in. (default is false)*/
+  store: new RedisStore({
     // Options specified here
+    // all `ioredis` options
   })
-}));
+}, app));
 
-app.use(function *() {
-  switch (this.path) {
+app.use(async ctx => {
+  switch (ctx.path) {
   case '/get':
     get.call(this);
     break;
@@ -69,7 +80,7 @@ app.use(function *() {
     remove.call(this);
     break;
   case '/regenerate':
-    yield regenerate.call(this);
+    await regenerate.call(this);
     break;
   }
 });
@@ -86,15 +97,15 @@ function remove() {
   this.body = 0;
 }
 
-function *regenerate() {
+async function regenerate() {
   get.call(this);
-  yield this.regenerateSession();
+  await this.regenerateSession();
   get.call(this);
 }
 
 app.listen(8080);
 ```
-For more examples, please see the [examples folder of `koa-generic-session`](https://github.com/koajs/generic-session/tree/master/example).
+For more examples, please see the [examples folder of `koa-session`](https://github.com/koajs/session/blob/master/example.js).
 
 ### Options
 
@@ -114,18 +125,19 @@ See the [`ioredis` docs](https://www.npmjs.com/package/ioredis#connection-events
  - `idle`
 
 ### API
-These are some the funcitons that `koa-generic-session` uses that you can use manually. You will need to inintialize differently than the example above:
+These are some the funcitons that `koa-session` uses that you can use manually. You will need to inintialize differently than the example above:
 ```js
-var session = require('koa-generic-session');
-var redisStore = require('koa-session-ioredis')({
+const session = require('koa-session');
+const redisStore = require('koa2-session-ioredis')({
   // Options specified here
 });
-var app = require('koa')();
+const app = require('koa')();
 
 app.keys = ['keys', 'keykeys'];
 app.use(session({
-  store: redisStore
-}));
+  //... other options
+  store: new redisStore()
+}, app));
 ```
 
 #### module([options])

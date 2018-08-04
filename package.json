@@ -1,45 +1,44 @@
 {
-  "name": "koa-session-ioredis",
-  "description": "koa session with ioredis using koa-generic-session",
-  "repository": "ortoo/koa-ioredis",
+  "name": "koa2-session-ioredis",
+  "description": "koa2 session with ioredis using koa-session",
+  "repository": "WuQic/koa2-ioredis",
   "bugs": {
-    "url": "https://github.com/ortoo/koa-ioredis/issues"
+    "url": "https://github.com/WuQic/koa2-ioredis/issues"
   },
-  "homepage": "https://github.com/ortoo/koa-ioredis",
-  "version": "1.0.5",
+  "homepage": "https://github.com/WuQic/koa2-ioredis",
+  "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "istanbul cover node_modules/mocha/bin/_mocha -- --require co-mocha \"test/**/*.test.js\"",
-    "test-only": "node_modules/.bin/mocha --require co-mocha \"test/**/*.test.js\"",
+    "test-old": "istanbul cover node_modules/mocha/bin/_mocha -- --require co-mocha \"test/**/*.test.js\"",
+    "test": "mocha --require mocha \"test/**/*.test.js\"",
     "autod": "autod -w --prefix=~"
   },
   "keywords": [
-    "koa",
+    "koa2",
     "middleware",
     "session",
     "redis",
     "ioredis"
   ],
-  "author": "James Sharp <james@ortootech.com>",
+  "author": "WuQic<chao.memo@gmail.com>",
   "dependencies": {
-    "debug": "~2.2.0"
-  },
-  "peerDependencies": {
-    "ioredis": "^2.2.0"
+    "debug": "~3.1.0",
+    "ioredis": "~3.2.2"
   },
   "devDependencies": {
-    "autod": "2",
-    "co-mocha": "^1.1.2",
-    "connect": "~3.4.0",
-    "connect-redis": "~3.0.2",
-    "istanbul": "~0.4.1",
-    "koa": "~1.1.2",
-    "koa-generic-session": "~1.10.1",
-    "mocha": "^2.3.4",
-    "should": "^8.1.1"
+    "autod": "^2.9.0",
+    "co-mocha": "^1.2.0",
+    "connect": "~3.6.6",
+    "connect-redis": "~3.3.3",
+    "ioredis": "^3.2.2",
+    "istanbul": "^0.4.5",
+    "koa": "~2.5.2",
+    "koa-session": "~5.8.2",
+    "mocha": "~5.2.0",
+    "should": "~13.2.3"
   },
   "engines": {
-    "node": ">= 4"
+    "node": ">= 7.6"
   },
   "license": "MIT"
 }
