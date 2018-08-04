@@ -3,3 +3,6 @@ test
 Makefile
 History.md
 dump.rdb
+.vscode
+package-lock.json
+node_modules
