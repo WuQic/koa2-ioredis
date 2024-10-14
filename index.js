@@ -114,8 +114,8 @@ module.exports = exports.default = class RedisStore  extends EventEmitter{
       // if maxAge is a number, convert it to seconds
       ttl = Math.ceil(maxAge / 1000);
     } else if (maxAge === 'session') {
-      // if maxAge is 'session', do not set expiration time
-      ttl = null;
+      // set a default ttl for session
+      ttl = 24 * 60 * 60 * 1000;
     }
 
     // ensure ttl is at least 1 second
