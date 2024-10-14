@@ -6,7 +6,7 @@
     "url": "https://github.com/WuQic/koa2-ioredis/issues"
   },
   "homepage": "https://github.com/WuQic/koa2-ioredis",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "main": "index.js",
   "scripts": {
     "test-old": "istanbul cover node_modules/mocha/bin/_mocha -- --require co-mocha \"test/**/*.test.js\"",
