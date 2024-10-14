@@ -105,4 +105,16 @@ describe('test/koa-redis.test.js', function () {
     should.not.exist(await store.get('key:ttl2'));
     await store.quit();
   });
+
+  it('should use set when maxAge is "session"', async () => {
+    const sid = 'test_sid';
+    const sess = { foo: 'bar' };
+    const maxAge = 'session';
+
+    await store.set(sid, sess, maxAge);
+
+    expect(mockClient.set.calledOnce).to.be.true;
+    expect(mockClient.set.firstCall.args[0]).to.equal(sid);
+    expect(JSON.parse(mockClient.set.firstCall.args[1])).to.deep.equal(sess);
+  });
 });

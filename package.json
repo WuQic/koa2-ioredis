@@ -6,7 +6,7 @@
     "url": "https://github.com/WuQic/koa2-ioredis/issues"
   },
   "homepage": "https://github.com/WuQic/koa2-ioredis",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "index.js",
   "scripts": {
     "test-old": "istanbul cover node_modules/mocha/bin/_mocha -- --require co-mocha \"test/**/*.test.js\"",
@@ -22,15 +22,17 @@
   ],
   "author": "WuQic<chao.memo@gmail.com>",
   "dependencies": {
-    "debug": "~3.1.0",
-    "ioredis": "~3.2.2"
+    "debug": "~3.1.0"
+  },
+  "peerDependencies": {
+    "ioredis": ">=3.0.0"
   },
   "devDependencies": {
     "autod": "^2.9.0",
     "co-mocha": "^1.2.0",
     "connect": "~3.6.6",
     "connect-redis": "~3.3.3",
-    "ioredis": "^3.2.2",
+    "ioredis": ">=3.0.0",
     "istanbul": "^0.4.5",
     "koa": "~2.5.2",
     "koa-session": "~5.8.2",
@@ -38,7 +40,7 @@
     "should": "~13.2.3"
   },
   "engines": {
-    "node": ">= 7.6"
+    "node": ">= 8.0.0"
   },
   "license": "MIT"
 }

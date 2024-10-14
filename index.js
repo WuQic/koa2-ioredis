@@ -99,20 +99,42 @@ module.exports = exports.default = class RedisStore  extends EventEmitter{
       debug('parse session error: %s', err.message)
     }
   }
-  
-  async set(sid, sess, ttl) {
-    if (typeof ttl === 'number') {
-      ttl = Math.ceil(ttl / 1000)
+
+  /**
+   * set session
+   * @param {string} sid - session id
+   * @param {object} sess - session object
+   * @param {number|string} maxAge - session max age, if number, it's the max age in milliseconds, if string, it's 'session'
+   * @param {object} options - session options
+   */
+  async set(sid, sess, maxAge, options = {}) {
+    let ttl = null;
+
+    if (typeof maxAge === 'number') {
+      // if maxAge is a number, convert it to seconds
+      ttl = Math.ceil(maxAge / 1000);
+    } else if (maxAge === 'session') {
+      // if maxAge is 'session', do not set expiration time
+      ttl = null;
     }
-    sess = JSON.stringify(sess)
-    if (ttl) {
-      debug('SETEX %s %s %s', sid, ttl, sess)
-      await this.client.setex(sid, ttl, sess)
+
+    // ensure ttl is at least 1 second
+    if (ttl !== null) {
+      ttl = Math.max(ttl, 1);
+    }
+
+    const jsonString = JSON.stringify(sess);
+    
+    if (ttl !== null) {
+      debug('SETEX %s %s %s', sid, ttl, jsonString);
+      await this.client.setex(sid, ttl, jsonString);
     } else {
-      debug('SET %s %s', sid, sess)
-      await this.client.set(sid, sess)
+      debug('SET %s %s', sid, jsonString);
+      await this.client.set(sid, jsonString);
     }
-    debug('SET %s complete', sid)
+
+    debug('SET %s complete', sid);
+    // debug('SET options: %j', options);
   }
 
   async destroy(sid) {
